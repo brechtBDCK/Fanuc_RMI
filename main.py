@@ -1,7 +1,7 @@
 from fanuc_rmi import RobotClient
 
 def main():
-    client = RobotClient(host = "192.168.1.22",startup_port = 16001, main_port = 16002, connect_timeout = 5.0, socket_timeout = 100.0, reader_timeout = 100.0, attempts = 5, retry_delay = 0.5, startup_pause = 0.25)
+    client = RobotClient(host = "192.168.1.22",startup_port = 16001, main_port = 16002)
     client.connect()
     client.initialize(uframe=0, utool=1)
 
@@ -23,7 +23,7 @@ def main():
     
     # Optional: Read coordinates
     # client.read_cartesian_coordinates()
-    # client.read_joint_coordinates()
+    client.read_joint_coordinates()
 
     client.close()
 

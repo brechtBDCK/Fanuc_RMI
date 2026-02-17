@@ -3,15 +3,11 @@ from pathlib import Path
 from .connection import SocketJsonReader, send_command
 
 
-def request_current_position(client_socket, reader: SocketJsonReader) -> dict:
-    """Request the current Cartesian position from the robot."""
-    data = {"Command": "FRC_ReadCartesianPosition"}
-    return send_command(client_socket, reader, data)
-
-
 def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_path: str = "./robot_position_cartesian.txt"):
     """Send a command to read the robot's Cartesian position."""
-    response = request_current_position(client_socket, reader)
+    data = {"Command": "FRC_ReadCartesianPosition"}
+    response = send_command(client_socket, reader, data)
+
     print(response)
 
     path = Path(output_path)

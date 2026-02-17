@@ -3,56 +3,78 @@
 Python client for FANUC RMI with reusable functions (no CLI entrypoint).
 
 **Install (pip)**
-1. `python3 -m venv .venv`
-2. `source .venv/bin/activate`
-3. `pip install fanuc-rmi`
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install fanuc-rmi
+```
 
-**Quick Start**
+**Create Client + Connect**
 ```python
 from fanuc_rmi import RobotClient
 
-client = RobotClient(
+# create client (no network calls yet)
+robot = RobotClient(
     host="192.168.1.22",
+    startup_port=16001,
+    main_port=16002,
+    connect_timeout=5.0,
     socket_timeout=100.0,
     reader_timeout=100.0,
+    attempts=5,
+    retry_delay=0.5,
+    startup_pause=0.25,
 )
 
-client.connect()
-client.initialize(uframe=0, utool=1)
-
-absolute_position = {"J1": 63.252, "J2": 31.488, "J3": -35.602, "J4": 18.504, "J5": -101.313, "J6": 108.650, "J7": 0.000, "J8": 0.000, "J9": 0.000}
-client.joint_absolute(absolute_position, speed_percentage=40)
-
-client.close()
+robot.connect()            # returns None
+robot.initialize(uframe=0, utool=1)  # returns None
 ```
 
-**Configuration (RobotClient args)**
-- `host`: controller IP address
-- `startup_port`: startup port, default `16001`
-- `main_port`: main port, default `16002`
-- `connect_timeout`: seconds for TCP connect
-- `socket_timeout`: seconds for socket ops
-- `reader_timeout`: seconds to wait for a JSON response
-- `attempts`: number of retry attempts
-- `retry_delay`: seconds between retries
-- `startup_pause`: seconds between startup and main connections
+**Linear Relative Motion**
+```python
+# move relative to current pose (mm / deg)
+relative_displacement = {"X": 100, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0}
+robot.linear_relative(relative_displacement, speed=500)  # mm/sec, returns None
+```
 
-**API Overview**
-- `RobotClient(...)`: create a client, no network calls; returns a client instance
-- `RobotClient.connect()`: connects to startup, sends `FRC_Connect`, then connects to main; prints responses; returns `None`
-- `RobotClient.initialize(uframe=0, utool=1)`: sends `FRC_Reset`, `FRC_Initialize`, `FRC_SetUFrameUTool`; prints responses; returns `None`
-- `RobotClient.close()`: sends `FRC_Disconnect` and closes sockets; returns `None`
+**Linear Absolute Motion**
+```python
+# move to absolute pose (mm / deg)
+absolute_position = {"X": 491.320, "Y": -507.016, "Z": 223.397, "W": -179.577, "P": 52.380, "R": -93.233}
+robot.linear_absolute(absolute_position, speed=300)  # mm/sec, returns None
+```
 
-**Motions (RobotClient)**
-- `linear_relative(relative_displacement, speed)`: linear move relative to current pose; `X, Y, Z, W, P, R` (mm/deg); `speed` in mm/s; returns `None`
-- `linear_absolute(absolute_position, speed)`: linear move to absolute pose; `X, Y, Z, W, P, R`; `speed` in mm/s; returns `None`
-- `joint_relative(relative_displacement, speed_percentage)`: joint move relative; `J0..J9`; `speed_percentage` is % of max; returns `None`
-- `joint_absolute(absolute_position, speed_percentage)`: joint move to absolute; `J1..J9`; `speed_percentage` is % of max; returns `None`
+**Joint Relative Motion**
+```python
+# move joints relative to current (deg)
+relative_joints = {"J0": 0, "J1": 0, "J2": 0, "J3": 0, "J4": 0, "J5": 0, "J6": 0, "J7": 0, "J8": 0, "J9": 0}
+robot.joint_relative(relative_joints, speed_percentage=40)  # returns None
+```
 
-**Reads (RobotClient)**
-- `read_cartesian_coordinates(output_path="./robot_position_cartesian.txt")`: sends `FRC_ReadCartesianPosition`, prints response, appends formatted pose line; returns `None`
-- `read_joint_coordinates(output_path="./robot_position_joint.txt")`: sends `FRC_ReadJointAngles`, prints response, appends formatted joint line; returns `None`
-- `request_current_position()`: sends `FRC_ReadCartesianPosition` and returns the raw response dict
+**Joint Absolute Motion**
+```python
+# move to absolute joint angles (deg)
+absolute_joints = {"J1": 63.252, "J2": 31.488, "J3": -35.602, "J4": 18.504, "J5": -101.313, "J6": 108.650, "J7": 0.000, "J8": 0.000, "J9": 0.000}
+robot.joint_absolute(absolute_joints, speed_percentage=40)  # returns None
+```
+
+**Read Cartesian Position (writes file)**
+```python
+robot.read_cartesian_coordinates()  # returns None
+# writes to ./robot_position_cartesian.txt (auto-created)
+```
+
+**Read Joint Angles (writes file)**
+```python
+robot.read_joint_coordinates()  # returns None
+# writes to ./robot_position_joint.txt (auto-created)
+```
+
+
+**Disconnect**
+```python
+robot.close()  # returns None
+```
 
 **Output Files**
 - `robot_position_cartesian.txt`: created automatically when reading Cartesian poses

@@ -1,4 +1,5 @@
 from .client import RobotClient
+from .helpers import build_client
 from .connection import SocketJsonReader, connect_with_retry, send_command
 from .motions import linear_relative, linear_absolute, joint_relative, joint_absolute
 from .pose_reader import (
@@ -9,6 +10,7 @@ from .pose_reader import (
 
 __all__ = [
     "RobotClient",
+    "build_client",
     "SocketJsonReader",
     "connect_with_retry",
     "send_command",

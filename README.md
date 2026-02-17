@@ -2,19 +2,11 @@
 
 Simple Python client for FANUC RMI with a small CLI and reusable functions.
 
-**Quick Start**
-1. `git clone <this-repo-url>`
-2. `cd Fanuc_RMI`
-3. `python3 -m venv .venv`
-4. `source .venv/bin/activate`
-5. Open `main.py` and set connection values in `build_client()`.
-6. Run `python main.py`
+**Install (pip)**
+1. `python3 -m venv .venv`
+2. `source .venv/bin/activate`
+3. `pip install fanuc-rmi`
 
-**Functions**
-- `RobotClient.connect()` / `RobotClient.close()`
-- `RobotClient.initialize(uframe=0, utool=1)`
-- Motions: `linear_relative`, `linear_absolute`, `joint_relative`, `joint_absolute`
-- Reads: `read_cartesian_coordinates`, `read_joint_coordinates`, `request_current_position`
 
 **Basic Use (RobotClient)**
 ```python
@@ -35,22 +27,22 @@ client.joint_absolute(absolute_position, speed_percentage=40)
 client.close()
 ```
 
-**Using From Another Project (No Pip Install)**
-1. Make sure you have this repo on disk (clone or copy).
-2. Add it to `PYTHONPATH` for your session:
-   `export PYTHONPATH=/path/to/Fanuc_RMI:$PYTHONPATH`
-3. Import and use:
-```python
-from fanuc_rmi import RobotClient
-```
+**Functions**
+- `RobotClient.connect()` / `RobotClient.close()`
+- `RobotClient.initialize(uframe=0, utool=1)`
 
-**Lower-Level Imports**
-You can also import specific functions if you prefer:
-```python
-from fanuc_rmi import joint_absolute, linear_relative
-```
+**Motions (RobotClient)**
+- `linear_relative(relative_displacement, speed)` — `relative_displacement` has `X, Y, Z, W, P, R` (mm/deg); `speed` is mm/s.
+- `linear_absolute(absolute_position, speed)` — `absolute_position` has `X, Y, Z, W, P, R`; `speed` is mm/s.
+- `joint_relative(relative_displacement, speed_percentage)` — `relative_displacement` has `J0..J9`; `speed_percentage` is % of max.
+- `joint_absolute(absolute_position, speed_percentage)` — `absolute_position` has `J1..J9`; `speed_percentage` is % of max.
+
+**Reads (RobotClient)**
+- `read_cartesian_coordinates(output_path="./robot_position_cartesian.txt")` — appends a formatted Cartesian pose line; file auto-created.
+- `read_joint_coordinates(output_path="./robot_position_joint.txt")` — appends a formatted joint pose line; file auto-created.
+- `request_current_position()` — returns the raw response dict.
+
 
 **Notes**
 - Requires Python 3.11+.
-- `main.py` runs the example.
 - `robot_position_cartesian.txt` and `robot_position_joint.txt` are created automatically when you read positions.

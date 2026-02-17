@@ -1,6 +1,5 @@
 import time
 
-from .config import load_config
 from .connection import SocketJsonReader, connect_with_retry, send_command
 from .motions import linear_relative, linear_absolute, joint_relative, joint_absolute
 from .pose_reader import request_current_position, read_cartesian_coordinates, read_joint_coordinates
@@ -31,26 +30,6 @@ class RobotClient:
 
         self.client_socket = None
         self.reader = None
-
-    @classmethod
-    def from_config(cls, path: str = "config.toml"):
-        config = load_config(path)
-
-        controller_cfg = config.get("controller", {})
-        connection_cfg = config.get("connection", {})
-        timing_cfg = config.get("timing", {})
-
-        return cls(
-            host=controller_cfg.get("host", "192.168.1.22"),
-            startup_port=controller_cfg.get("startup_port", 16001),
-            main_port=controller_cfg.get("main_port", 16002),
-            connect_timeout=connection_cfg.get("connect_timeout", 5.0),
-            socket_timeout=connection_cfg.get("socket_timeout", 5.0),
-            reader_timeout=connection_cfg.get("reader_timeout", 15.0),
-            attempts=connection_cfg.get("attempts", 5),
-            retry_delay=connection_cfg.get("retry_delay", 0.5),
-            startup_pause=timing_cfg.get("startup_pause", 0.25),
-        )
 
     def connect(self):
         print("- started rmi client...")

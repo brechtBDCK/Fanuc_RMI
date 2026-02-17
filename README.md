@@ -7,14 +7,25 @@ Simple Python client for FANUC RMI with a small CLI and reusable functions.
 2. `cd Fanuc_RMI`
 3. `python3 -m venv .venv`
 4. `source .venv/bin/activate`
-5. Edit `config.toml` and set `controller.host` to your robot IP.
+5. Open `main.py` and set connection values in `build_client()`.
 6. Run `python main.py`
+
+**Functions**
+- `RobotClient.connect()` / `RobotClient.close()`
+- `RobotClient.initialize(uframe=0, utool=1)`
+- Motions: `linear_relative`, `linear_absolute`, `joint_relative`, `joint_absolute`
+- Reads: `read_cartesian_coordinates`, `read_joint_coordinates`, `request_current_position`
 
 **Basic Use (RobotClient)**
 ```python
 from fanuc_rmi import RobotClient
 
-client = RobotClient.from_config("config.toml")
+client = RobotClient(
+    host="192.168.1.22",
+    socket_timeout=100.0,
+    reader_timeout=100.0,
+)
+
 client.connect()
 client.initialize(uframe=0, utool=1)
 
@@ -40,6 +51,6 @@ from fanuc_rmi import joint_absolute, linear_relative
 ```
 
 **Notes**
-- Requires Python 3.11+ (uses `tomllib`).
+- Requires Python 3.11+.
 - `main.py` runs the example.
 - `robot_position_cartesian.txt` and `robot_position_joint.txt` are created automatically when you read positions.

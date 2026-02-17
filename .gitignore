@@ -7,3 +7,4 @@ build/
 dist/
 robot_position_cartesian.txt
 robot_position_joint.txt
+config.toml

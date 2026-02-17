@@ -1,7 +1,33 @@
 from fanuc_rmi import RobotClient
 
+def build_client():
+    host = "192.168.1.22"
+    startup_port = 16001
+    main_port = 16002
+
+    connect_timeout = 5.0
+    socket_timeout = 100.0
+    reader_timeout = 100.0
+    attempts = 5
+    retry_delay = 0.5
+
+    startup_pause = 0.25
+
+    return RobotClient(
+        host=host,
+        startup_port=startup_port,
+        main_port=main_port,
+        connect_timeout=connect_timeout,
+        socket_timeout=socket_timeout,
+        reader_timeout=reader_timeout,
+        attempts=attempts,
+        retry_delay=retry_delay,
+        startup_pause=startup_pause,
+    )
+
+
 def main():
-    client = RobotClient.from_config("config.toml")
+    client = build_client()
     client.connect()
     client.initialize(uframe=0, utool=1)
 
@@ -18,11 +44,11 @@ def main():
     # client.joint_relative(relative_position, speed_percentage=40) #speed is percentage
     
     # Optional: Joint absolute motion
-    # absolute_position = {"J1": 12.648, "J2": 59.326, "J3": -2.001, "J4": 2.868, "J5": -133.750, "J6": 103.221, "J7": 0.000, "J8": 0.000, "J9": 0.000} #manually set the absolute joint angles
-    # client.joint_absolute(absolute_position, speed_percentage=40) #speed is percentage
+    absolute_position = {"J1": 63.252, "J2": 31.488, "J3": -35.602, "J4": 18.504, "J5": -101.313, "J6": 108.650, "J7": 0.000, "J8": 0.000, "J9": 0.000} #manually set the absolute joint angles
+    client.joint_absolute(absolute_position, speed_percentage=40) #speed is percentage
     
     # Optional: Read coordinates
-    client.read_cartesian_coordinates()
+    # client.read_cartesian_coordinates()
     # client.read_joint_coordinates()
 
     client.close()

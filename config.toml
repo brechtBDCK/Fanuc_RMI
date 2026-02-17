@@ -1,0 +1,14 @@
+[controller]
+host = "192.168.1.22"
+startup_port = 16001
+main_port = 16002
+
+[connection]
+connect_timeout = 5.0
+socket_timeout = 100.0
+reader_timeout = 100.0
+attempts = 5
+retry_delay = 0.5
+
+[timing]
+startup_pause = 0.25

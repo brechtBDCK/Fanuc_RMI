@@ -14,16 +14,18 @@ def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_p
     response = request_current_position(client_socket, reader)
     print(response)
 
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.touch(exist_ok=True)
+
     # Extract position data
-    position = response.get("JointAngle", {})
+    position = response.get("Position", {})
     if position:
         # Format the position data
         formatted_position = (
             f"X: {position.get('X', 0):.3f}, Y: {position.get('Y', 0):.3f}, Z: {position.get('Z', 0):.3f}, "
             f"W: {position.get('W', 0):.3f}, P: {position.get('P', 0):.3f}, R: {position.get('R', 0):.3f}"
         )
-
-        path = Path(output_path)
 
         # Append to the text file with a pose number
         try:
@@ -47,6 +49,10 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
     response = send_command(client_socket, reader, data)
     print(response)
 
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.touch(exist_ok=True)
+
     # Extract joint data
     joints = response.get("JointAngle") or response.get("Joints") or {}
     if joints:
@@ -56,8 +62,6 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
         if not parts:
             parts = [f"{key}: {float(value):.3f}" for key, value in joints.items()]
         formatted_joints = ", ".join(parts)
-
-        path = Path(output_path)
 
         # Append to the text file with a pose number
         try:

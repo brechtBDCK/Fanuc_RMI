@@ -5,3 +5,5 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+robot_position_cartesian.txt
+robot_position_joint.txt

@@ -7,9 +7,8 @@ Simple Python client for FANUC RMI with a small CLI and reusable functions.
 2. `cd ROBOT_fanuc_leuven`
 3. `python3 -m venv .venv`
 4. `source .venv/bin/activate`
-5. `pip install -r requirements.txt`
-6. Edit `config.toml` and set `controller.host` to your robot IP.
-7. Run `fanuc-rmi` or `python main.py`
+5. Edit `config.toml` and set `controller.host` to your robot IP.
+6. Run `python main.py`
 
 **Basic Use (RobotClient)**
 ```python
@@ -25,18 +24,14 @@ client.joint_absolute(absolute_position, speed_percentage=40)
 client.close()
 ```
 
-**Using From Another Project (Option A)**
+**Using From Another Project (No Pip Install)**
 1. Make sure you have this repo on disk (clone or copy).
-2. Install it into your other project’s venv:
-   `pip install -e /path/to/ROBOT_fanuc_leuven`
+2. Add it to `PYTHONPATH` for your session:
+   `export PYTHONPATH=/path/to/ROBOT_fanuc_leuven:$PYTHONPATH`
 3. Import and use:
 ```python
 from fanuc_rmi import RobotClient
 ```
-
-**Install Directly From Git**
-If the repo is hosted, another person can install it with:
-`pip install git+<your-repo-url>`
 
 **Lower-Level Imports**
 You can also import specific functions if you prefer:
@@ -46,5 +41,5 @@ from fanuc_rmi import joint_absolute, linear_relative
 
 **Notes**
 - Requires Python 3.11+ (uses `tomllib`).
-- `fanuc-rmi` runs `main.py` as the CLI.
-- If install fails, run `pip install -U pip setuptools wheel` and try again.
+- `main.py` runs the example.
+- `robot_position_cartesian.txt` and `robot_position_joint.txt` are created automatically when you read positions.

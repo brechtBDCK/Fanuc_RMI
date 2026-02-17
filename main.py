@@ -18,11 +18,11 @@ def main():
     # client.joint_relative(relative_position, speed_percentage=40) #speed is percentage
     
     # Optional: Joint absolute motion
-    absolute_position = {"J1": 12.648, "J2": 59.326, "J3": -2.001, "J4": 2.868, "J5": -133.750, "J6": 103.221, "J7": 0.000, "J8": 0.000, "J9": 0.000} #manually set the absolute joint angles
-    client.joint_absolute(absolute_position, speed_percentage=40) #speed is percentage
+    # absolute_position = {"J1": 12.648, "J2": 59.326, "J3": -2.001, "J4": 2.868, "J5": -133.750, "J6": 103.221, "J7": 0.000, "J8": 0.000, "J9": 0.000} #manually set the absolute joint angles
+    # client.joint_absolute(absolute_position, speed_percentage=40) #speed is percentage
     
     # Optional: Read coordinates
-    # client.read_cartesian_coordinates()
+    client.read_cartesian_coordinates()
     # client.read_joint_coordinates()
 
     client.close()

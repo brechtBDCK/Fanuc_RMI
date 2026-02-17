@@ -1,2 +1,1 @@
-# Install this package in editable mode
--e .
+# No external dependencies

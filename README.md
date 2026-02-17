@@ -3,8 +3,8 @@
 Simple Python client for FANUC RMI with a small CLI and reusable functions.
 
 **Quick Start**
-1. `git clone <your-repo-url>`
-2. `cd ROBOT_fanuc_leuven`
+1. `git clone <this-repo-url>`
+2. `cd Fanuc_RMI`
 3. `python3 -m venv .venv`
 4. `source .venv/bin/activate`
 5. Edit `config.toml` and set `controller.host` to your robot IP.
@@ -27,7 +27,7 @@ client.close()
 **Using From Another Project (No Pip Install)**
 1. Make sure you have this repo on disk (clone or copy).
 2. Add it to `PYTHONPATH` for your session:
-   `export PYTHONPATH=/path/to/ROBOT_fanuc_leuven:$PYTHONPATH`
+   `export PYTHONPATH=/path/to/Fanuc_RMI:$PYTHONPATH`
 3. Import and use:
 ```python
 from fanuc_rmi import RobotClient

@@ -94,3 +94,16 @@ def speed_override(client_socket, reader: SocketJsonReader, value: int):
     data = {"Command": "FRC_SetOverRide", "Value": value}
     response = send_command(client_socket, reader, data)
     print(response)
+
+
+def wait_time(
+    client_socket,
+    reader: SocketJsonReader,
+    seconds: float,
+    sequence_id: int = 1,
+):
+    """Wait for the specified number of seconds."""
+
+    data = {"Instruction": "FRC_WaitTime", "SequenceID": sequence_id, "Time": seconds}
+    response = send_command(client_socket, reader, data)
+    print(response)

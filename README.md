@@ -36,6 +36,12 @@ robot.initialize(uframe=0, utool=1)  # returns None
 robot.speed_override(50)  # returns None
 ```
 
+**Wait Time**
+```python
+# wait in seconds (uses sequence_id for ordering)
+robot.wait_time(2.5, sequence_id=5)  # returns None
+```
+
 **Linear Relative Motion**
 ```python
 # move relative to current pose (mm / deg)

@@ -30,6 +30,12 @@ robot.connect()            # returns None
 robot.initialize(uframe=0, utool=1)  # returns None
 ```
 
+**Speed Override**
+```python
+# set speed override (controller-specific range)
+robot.speed_override(50)  # returns None
+```
+
 **Linear Relative Motion**
 ```python
 # move relative to current pose (mm / deg)

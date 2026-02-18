@@ -1,7 +1,7 @@
 import time
 
 from .connection import SocketJsonReader, connect_with_retry, send_command
-from .motions import linear_relative, linear_absolute, joint_relative, joint_absolute
+from .motions import linear_relative, linear_absolute, joint_relative, joint_absolute, speed_override
 from .pose_reader import read_cartesian_coordinates, read_joint_coordinates
 
 
@@ -89,6 +89,9 @@ class RobotClient:
 
     def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1):
         joint_absolute(self.client_socket, self.reader, absolute_position, speed_percentage, sequence_id)
+
+    def speed_override(self, value: int):
+        speed_override(self.client_socket, self.reader, value)
 
 
     def read_cartesian_coordinates(self, output_path: str = "./robot_position_cartesian.txt"):

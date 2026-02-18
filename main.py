@@ -4,6 +4,7 @@ def main():
     client = RobotClient(host = "192.168.1.22",startup_port = 16001, main_port = 16002)
     client.connect()
     client.initialize(uframe=0, utool=1)
+    client.speed_override(40)  # Set speed override to 40% (can be adjusted as needed)
 
     # Optional: Linear relative motion
     # relative_displacement = {"X": 100, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0} #manually set the relative displacements

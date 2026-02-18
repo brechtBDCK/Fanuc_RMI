@@ -86,3 +86,11 @@ def joint_absolute(
     
     response = send_command(client_socket, reader, data)
     print(response)
+
+
+def speed_override(client_socket, reader: SocketJsonReader, value: int):
+    """Set the speed override percentage."""
+
+    data = {"Command": "FRC_SetOverRide", "Value": value}
+    response = send_command(client_socket, reader, data)
+    print(response)

@@ -12,8 +12,8 @@ class RobotClient:
         startup_port: int = 16001,
         main_port: int = 16002,
         connect_timeout: float = 5.0,
-        socket_timeout: float = 5.0,
-        reader_timeout: float = 15.0,
+        socket_timeout: float = 100.0,
+        reader_timeout: float = 100.0,
         attempts: int = 5,
         retry_delay: float = 0.5,
         startup_pause: float = 0.25,
@@ -78,17 +78,17 @@ class RobotClient:
             response = send_command(self.client_socket, self.reader, command)
             print(response)
 
-    def linear_relative(self, relative_displacement: dict, speed: float):
-        linear_relative(self.client_socket, self.reader, relative_displacement, speed)
+    def linear_relative(self, relative_displacement: dict, speed: float, sequence_id: int = 1):
+        linear_relative(self.client_socket, self.reader, relative_displacement, speed, sequence_id)
 
-    def linear_absolute(self, absolute_position: dict, speed: float):
-        linear_absolute(self.client_socket, self.reader, absolute_position, speed)
+    def linear_absolute(self, absolute_position: dict, speed: float, sequence_id: int = 1):
+        linear_absolute(self.client_socket, self.reader, absolute_position, speed, sequence_id)
 
-    def joint_relative(self, relative_displacement: dict, speed_percentage: float):
-        joint_relative(self.client_socket, self.reader, relative_displacement, speed_percentage)
+    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1):
+        joint_relative(self.client_socket, self.reader, relative_displacement, speed_percentage, sequence_id)
 
-    def joint_absolute(self, absolute_position: dict, speed_percentage: float):
-        joint_absolute(self.client_socket, self.reader, absolute_position, speed_percentage)
+    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1):
+        joint_absolute(self.client_socket, self.reader, absolute_position, speed_percentage, sequence_id)
 
 
     def read_cartesian_coordinates(self, output_path: str = "./robot_position_cartesian.txt"):

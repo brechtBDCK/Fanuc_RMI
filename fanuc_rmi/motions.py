@@ -1,12 +1,18 @@
 from .connection import SocketJsonReader, send_command
 
 
-def linear_relative(client_socket, reader: SocketJsonReader, relative_displacement: dict, speed: float):
+def linear_relative(
+    client_socket,
+    reader: SocketJsonReader,
+    relative_displacement: dict,
+    speed: float,
+    sequence_id: int = 1,
+):
     """Send a linear relative motion command."""
     
     data = {
         "Instruction": "FRC_LinearRelative",
-        "SequenceID": 1,
+        "SequenceID": sequence_id,
         "Configuration": {
             "UToolNumber": 1, "UFrameNumber": 0, "Front": 1, "Up": 1, "Left": 0, "Flip": 0,
             "Turn4": 0, "Turn5": 0, "Turn6": 0
@@ -18,12 +24,18 @@ def linear_relative(client_socket, reader: SocketJsonReader, relative_displaceme
     print(response)
     
     
-def linear_absolute(client_socket, reader: SocketJsonReader, absolute_position: dict, speed: float):
+def linear_absolute(
+    client_socket,
+    reader: SocketJsonReader,
+    absolute_position: dict,
+    speed: float,
+    sequence_id: int = 1,
+):
     """Send a linear absolute motion command."""
     
     data = {
         "Instruction": "FRC_LinearMotion",
-        "SequenceID": 1,
+        "SequenceID": sequence_id,
         "Configuration": {
             "UToolNumber": 1, "UFrameNumber": 0, "Front": 1, "Up": 1, "Left": 0, "Flip": 0,
             "Turn4": 0, "Turn5": 0, "Turn6": 0
@@ -34,12 +46,18 @@ def linear_absolute(client_socket, reader: SocketJsonReader, absolute_position: 
     response = send_command(client_socket, reader, data)
     print(response)
     
-def joint_relative(client_socket, reader: SocketJsonReader, relative_displacement: dict, speed_percentage: float):
+def joint_relative(
+    client_socket,
+    reader: SocketJsonReader,
+    relative_displacement: dict,
+    speed_percentage: float,
+    sequence_id: int = 1,
+):
     """Send a joint relative motion command."""
     
     data = {
         "Instruction": "FRC_JointRelativeJRep",
-        "SequenceID": 1,
+        "SequenceID": sequence_id,
         "Configuration": {
             "UToolNumber": 1, "UFrameNumber": 0, "Front": 1, "Up": 1, "Left": 0, "Flip": 0,
             "Turn4": 0, "Turn5": 0, "Turn6": 0
@@ -50,12 +68,18 @@ def joint_relative(client_socket, reader: SocketJsonReader, relative_displacemen
     response = send_command(client_socket, reader, data)
     print(response)
 
-def joint_absolute(client_socket, reader: SocketJsonReader, absolute_position: dict, speed_percentage: float):
+def joint_absolute(
+    client_socket,
+    reader: SocketJsonReader,
+    absolute_position: dict,
+    speed_percentage: float,
+    sequence_id: int = 1,
+):
     """Send a joint absolute motion command."""
 
     data = {
             "Instruction": "FRC_JointMotionJRep",
-            "SequenceID": 1,
+            "SequenceID": sequence_id,
             "JointAngle": absolute_position,
             "SpeedType": "Percent", "Speed": speed_percentage, "TermType": "FINE"
         }

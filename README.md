@@ -10,14 +10,12 @@ pip install fanuc-rmi
 ```
 
 **Robot URDF files**
-large dataset can be found: https://github.com/Daniella1/urdf_files_dataset?tab=readme-ov-file
+Large datasets can be found here: `https://github.com/Daniella1/urdf_files_dataset?tab=readme-ov-file`
 
-
-**Create Client + Connect**
+**Quick Start**
 ```python
 from fanuc_rmi import RobotClient
 
-# create client (no network calls yet)
 robot = RobotClient(
     host="192.168.1.22",
     startup_port=16001,
@@ -30,66 +28,55 @@ robot = RobotClient(
     startup_pause=0.25,
 )
 
-robot.connect()            # returns None
-robot.initialize(uframe=0, utool=1)  # returns None
+robot.connect()
+robot.initialize(uframe=0, utool=1)
+
+# Do work...
+
+robot.close()
 ```
 
-**Speed Override**
+**Motion Commands**
 ```python
 # set speed override (controller-specific range)
-robot.speed_override(50)  # returns None
-```
+robot.speed_override(50)
 
-**Wait Time**
-```python
 # wait in seconds (uses sequence_id for ordering)
-robot.wait_time(2.5, sequence_id=5)  # returns None
-```
+robot.wait_time(2.5, sequence_id=5)
 
-**Linear Relative Motion**
-```python
-# move relative to current pose (mm / deg)
+# linear relative motion (mm / deg)
 relative_displacement = {"X": 100, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0}
-robot.linear_relative(relative_displacement, speed=500, sequence_id=1)  # mm/sec, returns None
-```
+robot.linear_relative(relative_displacement, speed=500, sequence_id=1)
 
-**Linear Absolute Motion**
-```python
-# move to absolute pose (mm / deg)
+# linear absolute motion (mm / deg)
 absolute_position = {"X": 491.320, "Y": -507.016, "Z": 223.397, "W": -179.577, "P": 52.380, "R": -93.233}
-robot.linear_absolute(absolute_position, speed=300, sequence_id=2)  # mm/sec, returns None
-```
+robot.linear_absolute(absolute_position, speed=300, sequence_id=2)
 
-**Joint Relative Motion**
-```python
-# move joints relative to current (deg)
+# joint relative motion (deg)
 relative_joints = {"J0": 0, "J1": 0, "J2": 0, "J3": 0, "J4": 0, "J5": 0, "J6": 0, "J7": 0, "J8": 0, "J9": 0}
-robot.joint_relative(relative_joints, speed_percentage=40, sequence_id=3)  # returns None
-```
+robot.joint_relative(relative_joints, speed_percentage=40, sequence_id=3)
 
-**Joint Absolute Motion**
-```python
-# move to absolute joint angles (deg)
+# joint absolute motion (deg)
 absolute_joints = {"J1": 63.252, "J2": 31.488, "J3": -35.602, "J4": 18.504, "J5": -101.313, "J6": 108.650, "J7": 0.000, "J8": 0.000, "J9": 0.000}
-robot.joint_absolute(absolute_joints, speed_percentage=40, sequence_id=4)  # returns None
+robot.joint_absolute(absolute_joints, speed_percentage=40, sequence_id=4)
 ```
 
-**Read Cartesian Position (writes file)**
+**Read Positions (writes file + returns dict)**
 ```python
-robot.read_cartesian_coordinates()  # returns None
-# writes to ./robot_position_cartesian.txt (auto-created)
+cartesian = robot.read_cartesian_coordinates()
+# writes to ./robot_position_cartesian.txt
+
+joints = robot.read_joint_coordinates()
+# writes to ./robot_position_joint.txt
 ```
 
-**Read Joint Angles (writes file)**
+**Coordinate Conversion (IKPy)**
 ```python
-robot.read_joint_coordinates()  # returns None
-# writes to ./robot_position_joint.txt (auto-created)
-```
+urdf_path = "robot_models/crx10ial/crx10ial.urdf"
+cartesian = robot.read_cartesian_coordinates()
+joints = robot.convert_coordinates(cartesian, robot_model_urdf_path=urdf_path, from_type="cartesian", to_type="joint")
 
-
-**Disconnect**
-```python
-robot.close()  # returns None
+cartesian_again = robot.convert_coordinates(joints, robot_model_urdf_path=urdf_path, from_type="joint", to_type="cartesian")
 ```
 
 **Output Files**
@@ -98,5 +85,9 @@ robot.close()  # returns None
 
 **Notes**
 - Requires Python 3.11+.
+- `convert_coordinates` requires `ikpy` (`pip install ikpy`).
+- Coordinate conversion always uses W/P/R. Provide W/P/R in your input dicts (missing values default to `0.0`).
+- Joint dicts must use ascending `J` keys (`J1`, `J2`, `J3`, ...). The function assumes that order matches the URDF joint order.
+- URDF units are often meters. If your robot reports millimeters, you may need to scale values before conversion.
 - If you cloned the repo, `main.py` is a runnable example.
 - For back-to-back moves, increment `sequence_id` to preserve ordering.

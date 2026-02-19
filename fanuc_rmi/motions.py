@@ -1,13 +1,7 @@
 from .connection import SocketJsonReader, send_command
 
 
-def linear_relative(
-    client_socket,
-    reader: SocketJsonReader,
-    relative_displacement: dict,
-    speed: float,
-    sequence_id: int = 1,
-):
+def linear_relative(client_socket, reader: SocketJsonReader, relative_displacement: dict, speed: float, sequence_id: int = 1):
     """Send a linear relative motion command."""
     
     data = {
@@ -24,13 +18,7 @@ def linear_relative(
     print(response)
     
     
-def linear_absolute(
-    client_socket,
-    reader: SocketJsonReader,
-    absolute_position: dict,
-    speed: float,
-    sequence_id: int = 1,
-):
+def linear_absolute(client_socket, reader: SocketJsonReader, absolute_position: dict, speed: float, sequence_id: int = 1):
     """Send a linear absolute motion command."""
     
     data = {
@@ -46,13 +34,7 @@ def linear_absolute(
     response = send_command(client_socket, reader, data)
     print(response)
     
-def joint_relative(
-    client_socket,
-    reader: SocketJsonReader,
-    relative_displacement: dict,
-    speed_percentage: float,
-    sequence_id: int = 1,
-):
+def joint_relative(client_socket, reader: SocketJsonReader, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1):
     """Send a joint relative motion command."""
     
     data = {
@@ -68,13 +50,7 @@ def joint_relative(
     response = send_command(client_socket, reader, data)
     print(response)
 
-def joint_absolute(
-    client_socket,
-    reader: SocketJsonReader,
-    absolute_position: dict,
-    speed_percentage: float,
-    sequence_id: int = 1,
-):
+def joint_absolute(client_socket, reader: SocketJsonReader, absolute_position: dict, speed_percentage: float, sequence_id: int = 1):
     """Send a joint absolute motion command."""
 
     data = {
@@ -96,12 +72,7 @@ def speed_override(client_socket, reader: SocketJsonReader, value: int):
     print(response)
 
 
-def wait_time(
-    client_socket,
-    reader: SocketJsonReader,
-    seconds: float,
-    sequence_id: int = 1,
-):
+def wait_time(client_socket, reader: SocketJsonReader, seconds: float, sequence_id: int = 1):
     """Wait for the specified number of seconds."""
 
     data = {"Instruction": "FRC_WaitTime", "SequenceID": sequence_id, "Time": seconds}

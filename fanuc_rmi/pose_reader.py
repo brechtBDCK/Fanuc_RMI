@@ -4,7 +4,7 @@ from .connection import SocketJsonReader, send_command
 
 
 def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_path: str = "./robot_position_cartesian.txt"):
-    """Send a command to read the robot's Cartesian position."""
+    """Send a command to read the robot's Cartesian position and return it."""
     data = {"Command": "FRC_ReadCartesianPosition"}
     response = send_command(client_socket, reader, data)
 
@@ -17,10 +17,11 @@ def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_p
     # Extract position data
     position = response.get("Position", {})
     if position:
+        position_data = {key: float(position.get(key, 0.0)) for key in ("X", "Y", "Z", "W", "P", "R")}
         # Format the position data
         formatted_position = (
-            f"X: {position.get('X', 0):.3f}, Y: {position.get('Y', 0):.3f}, Z: {position.get('Z', 0):.3f}, "
-            f"W: {position.get('W', 0):.3f}, P: {position.get('P', 0):.3f}, R: {position.get('R', 0):.3f}"
+            f"X: {position_data['X']:.3f}, Y: {position_data['Y']:.3f}, Z: {position_data['Z']:.3f}, "
+            f"W: {position_data['W']:.3f}, P: {position_data['P']:.3f}, R: {position_data['R']:.3f}"
         )
 
         # Append to the text file with a pose number
@@ -36,11 +37,13 @@ def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_p
             file.write(formatted_position + "\n")
 
         print(f"Position data appended to {path.name} as Pose #{pose_count}")
+        return position_data
     else:
         print("No position data available.")
+        return {}
 
 def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path: str = "./robot_position_joint.txt"):
-    """Send a command to read the robot's joint angles."""
+    """Send a command to read the robot's joint angles and return them."""
     data = {"Command": "FRC_ReadJointAngles"}
     response = send_command(client_socket, reader, data)
     print(response)
@@ -54,9 +57,13 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
     if joints:
         # Format the joint data
         ordered_keys = [f"J{i}" for i in range(0, 10)]
-        parts = [f"{key}: {float(joints[key]):.3f}" for key in ordered_keys if key in joints]
-        if not parts:
-            parts = [f"{key}: {float(value):.3f}" for key, value in joints.items()]
+        ordered_items = [(key, float(joints[key])) for key in ordered_keys if key in joints]
+        if ordered_items:
+            joint_data = {key: value for key, value in ordered_items}
+            parts = [f"{key}: {value:.3f}" for key, value in ordered_items]
+        else:
+            joint_data = {key: float(value) for key, value in joints.items()}
+            parts = [f"{key}: {value:.3f}" for key, value in joint_data.items()]
         formatted_joints = ", ".join(parts)
 
         # Append to the text file with a pose number
@@ -72,6 +79,7 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
             file.write(formatted_joints + "\n")
 
         print(f"Joint data appended to {path.name} as Pose #{pose_count}")
+        return joint_data
     else:
         print("No joint data available.")
-    
+        return {}

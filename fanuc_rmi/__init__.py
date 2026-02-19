@@ -1,5 +1,4 @@
 from .client import RobotClient
-from .helpers import build_client
 from .connection import SocketJsonReader, connect_with_retry, send_command
 from .motions import (
     linear_relative,
@@ -13,10 +12,10 @@ from .pose_reader import (
     read_cartesian_coordinates,
     read_joint_coordinates,
 )
+from .kinematics import convert_coordinates
 
 __all__ = [
     "RobotClient",
-    "build_client",
     "SocketJsonReader",
     "connect_with_retry",
     "send_command",
@@ -28,4 +27,5 @@ __all__ = [
     "wait_time",
     "read_cartesian_coordinates",
     "read_joint_coordinates",
+    "convert_coordinates",
 ]

@@ -42,14 +42,7 @@ def send_command(client_socket: socket.socket, reader: SocketJsonReader, data):
     return reader.read_json()
 
 
-def connect_with_retry(
-    host: str,
-    port: int,
-    attempts: int = 5,
-    delay: float = 0.5,
-    connect_timeout: float = 5.0,
-    socket_timeout: float = 5.0,
-) -> socket.socket:
+def connect_with_retry(host: str, port: int, attempts: int = 5, delay: float = 0.5, connect_timeout: float = 5.0, socket_timeout: float = 5.0) -> socket.socket:
     """Retry connecting to the controller to avoid racing its startup."""
     last_error: Optional[Exception] = None
     for attempt in range(1, attempts + 1):
@@ -62,5 +55,4 @@ def connect_with_retry(
             if attempt < attempts:
                 time.sleep(delay)
     raise RuntimeError(f"Unable to connect to {host}:{port} after {attempts} attempts") from last_error
-
 

@@ -9,6 +9,10 @@ source .venv/bin/activate
 pip install fanuc-rmi
 ```
 
+**Robot URDF files**
+large dataset can be found: https://github.com/Daniella1/urdf_files_dataset?tab=readme-ov-file
+
+
 **Create Client + Connect**
 ```python
 from fanuc_rmi import RobotClient

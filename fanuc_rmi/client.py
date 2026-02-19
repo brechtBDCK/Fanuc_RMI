@@ -10,21 +10,11 @@ from .motions import (
     wait_time,
 )
 from .pose_reader import read_cartesian_coordinates, read_joint_coordinates
+from .kinematics import convert_coordinates
 
 
 class RobotClient:
-    def __init__(
-        self,
-        host: str = "192.168.1.22",
-        startup_port: int = 16001,
-        main_port: int = 16002,
-        connect_timeout: float = 5.0,
-        socket_timeout: float = 100.0,
-        reader_timeout: float = 100.0,
-        attempts: int = 5,
-        retry_delay: float = 0.5,
-        startup_pause: float = 0.25,
-    ):
+    def __init__(self, host: str = "192.168.1.22", startup_port: int = 16001, main_port: int = 16002, connect_timeout: float = 5.0, socket_timeout: float = 100.0, reader_timeout: float = 100.0, attempts: int = 5, retry_delay: float = 0.5, startup_pause: float = 0.25):
         self.host = host
         self.startup_port = startup_port
         self.main_port = main_port
@@ -82,35 +72,63 @@ class RobotClient:
         ]
 
         for command in commands:
+            if self.client_socket is None or self.reader is None:
+                raise RuntimeError("Client socket or reader is not connected.")
             response = send_command(self.client_socket, self.reader, command)
             print(response)
 
     def linear_relative(self, relative_displacement: dict, speed: float, sequence_id: int = 1):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         linear_relative(self.client_socket, self.reader, relative_displacement, speed, sequence_id)
 
     def linear_absolute(self, absolute_position: dict, speed: float, sequence_id: int = 1):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         linear_absolute(self.client_socket, self.reader, absolute_position, speed, sequence_id)
 
     def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         joint_relative(self.client_socket, self.reader, relative_displacement, speed_percentage, sequence_id)
 
     def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         joint_absolute(self.client_socket, self.reader, absolute_position, speed_percentage, sequence_id)
 
     def speed_override(self, value: int):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         speed_override(self.client_socket, self.reader, value)
 
     def wait_time(self, seconds: float, sequence_id: int = 1):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
         wait_time(self.client_socket, self.reader, seconds, sequence_id)
 
+    def abort(self):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        response = send_command(self.client_socket, self.reader, {"Command": "FRC_Abort"})
+        print(response)
+        return response
+
     def read_cartesian_coordinates(self, output_path: str = "./robot_position_cartesian.txt"):
-        read_cartesian_coordinates(self.client_socket, self.reader, output_path=output_path)
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return read_cartesian_coordinates(self.client_socket, self.reader, output_path=output_path)
 
     def read_joint_coordinates(self, output_path: str = "./robot_position_joint.txt"):
-        read_joint_coordinates(self.client_socket, self.reader, output_path=output_path)
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return read_joint_coordinates(self.client_socket, self.reader, output_path=output_path)
+
+    def convert_coordinates(self, data: dict, robot_model_urdf_path: str, from_type: str, to_type: str, *, config=None, seed=None):
+        return convert_coordinates(data, robot_model_urdf_path, from_type, to_type, config=config, seed=seed)
 
     def close(self):
-        if self.client_socket:
+        if self.client_socket and self.reader:
             response = send_command(self.client_socket, self.reader, {"Communication": "FRC_Disconnect"})
             print(response)
 

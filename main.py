@@ -26,8 +26,14 @@ def main():
     robot.joint_absolute(absolute_position_2, speed_percentage=80, sequence_id=3) #speed is percentage
     
     # Optional: Read coordinates
-    # robot.read_cartesian_coordinates()
-    # robot.read_joint_coordinates()
+    # robot.read_cartesian_coordinates() # save  out to the txt file, but also return the data as a dictionary
+    # robot.read_joint_coordinates() # save out to the txt file, but also return the data as a dictionary
+
+    # Optional: Converting coordinates (e.g., from Cartesian to joint angles or vice versa)
+    data_cartesian = robot.read_cartesian_coordinates()
+    robot.convert_coordinates(data_cartesian, robot_model_urdf_path = "robot_models/crx10ial/crx10ial.urdf", from_type="cartesian", to_type="joint")
+    # robot.convert_coordinates(data, robot_model_urdf_path = "robot_models/crx10ial/crx10ial.urdf", from_type="joint", to_type="cartesian")
+
 
     robot.close()
 

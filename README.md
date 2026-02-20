@@ -1,42 +1,33 @@
 # FANUC RMI Client
 
-Python client for FANUC RMI with reusable functions (no CLI entrypoint).
+Python client for FANUC RMI with reusable functions.
 
-**Install (pip)**
+## Install
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install fanuc-rmi
 ```
 
-**Robot URDF files**
-Large datasets can be found here: `https://github.com/Daniella1/urdf_files_dataset?tab=readme-ov-file`
+## Quick Start
 
-**Quick Start**
 ```python
 from fanuc_rmi import RobotClient
 
-robot = RobotClient(
-    host="192.168.1.22",
-    startup_port=16001,
-    main_port=16002,
-    connect_timeout=5.0,
-    socket_timeout=100.0,
-    reader_timeout=100.0,
-    attempts=5,
-    retry_delay=0.5,
-    startup_pause=0.25,
-)
-
+robot = RobotClient(host="192.168.1.22", startup_port=16001, main_port=16002)
 robot.connect()
 robot.initialize(uframe=0, utool=1)
 
-# Do work...
+active = robot.get_uframe_utool()
 
 robot.close()
 ```
 
-**Motion Commands**
+## Motion Commands
+
+All motion methods accept `uframe` and `utool` arguments (defaults are `1` and `1`).
+
 ```python
 # set speed override (controller-specific range)
 robot.speed_override(50)
@@ -46,48 +37,83 @@ robot.wait_time(2.5, sequence_id=5)
 
 # linear relative motion (mm / deg)
 relative_displacement = {"X": 100, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0}
-robot.linear_relative(relative_displacement, speed=500, sequence_id=1)
+robot.linear_relative(relative_displacement, speed=500, sequence_id=1, uframe=1, utool=1)
 
 # linear absolute motion (mm / deg)
-absolute_position = {"X": 491.320, "Y": -507.016, "Z": 223.397, "W": -179.577, "P": 52.380, "R": -93.233}
-robot.linear_absolute(absolute_position, speed=300, sequence_id=2)
+absolute_position = {
+    "X": 491.320, "Y": -507.016, "Z": 223.397,
+    "W": -179.577, "P": 52.380, "R": -93.233,
+}
+robot.linear_absolute(absolute_position, speed=300, sequence_id=2, uframe=1, utool=1)
 
 # joint relative motion (deg)
-relative_joints = {"J0": 0, "J1": 0, "J2": 0, "J3": 0, "J4": 0, "J5": 0, "J6": 0, "J7": 0, "J8": 0, "J9": 0}
-robot.joint_relative(relative_joints, speed_percentage=40, sequence_id=3)
+relative_joints = {"J1": 0, "J2": 0, "J3": 0, "J4": 0, "J5": 0, "J6": 0, "J7": 0, "J8": 0, "J9": 0}
+robot.joint_relative(relative_joints, speed_percentage=40, sequence_id=3, uframe=1, utool=1)
 
 # joint absolute motion (deg)
-absolute_joints = {"J1": 63.252, "J2": 31.488, "J3": -35.602, "J4": 18.504, "J5": -101.313, "J6": 108.650, "J7": 0.000, "J8": 0.000, "J9": 0.000}
-robot.joint_absolute(absolute_joints, speed_percentage=40, sequence_id=4)
+absolute_joints = {
+    "J1": 63.252, "J2": 31.488, "J3": -35.602,
+    "J4": 18.504, "J5": -101.313, "J6": 108.650,
+    "J7": 0.000, "J8": 0.000, "J9": 0.000,
+}
+robot.joint_absolute(absolute_joints, speed_percentage=40, sequence_id=4, uframe=1, utool=1)
 ```
 
-**Read Positions (writes file + returns dict)**
-```python
-cartesian = robot.read_cartesian_coordinates()
-# writes to ./robot_position_cartesian.txt
+## Read APIs
 
-joints = robot.read_joint_coordinates()
-# writes to ./robot_position_joint.txt
+```python
+# current pose (also appends to local txt files)
+cartesian = robot.read_cartesian_coordinates()  # ./robot_position_cartesian.txt
+joints = robot.read_joint_coordinates()         # ./robot_position_joint.txt
+
+# active frame/tool selection on controller
+active = robot.get_uframe_utool()
+
+# frame/tool data records
+uframe_1 = robot.read_uframe_data(1)
+utool_1 = robot.read_utool_data(1)
+
+robot.write_uframe_data(2, {"X": 0, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0})
+robot.write_utool_data(3, {"X": 10, "Y": 0, "Z": 120, "W": 0, "P": 0, "R": 0})
 ```
 
-**Coordinate Conversion (IKPy)**
+## UFRAME / UTOOL Numbering
+
+- `UFRAME` selection supports `0..9`.
+- `UFRAME 0` is the controller default/world frame (valid to select/use).
+- `FRC_ReadUFrameData` / `FRC_WriteUFrameData` should use `1..9`. Using `0` may return an error.
+- `UTOOL` selection is `1..9` on this setup.
+- No practical `UTOOL 0` is used in this project.
+
+## Coordinate Conversion (IKPy)
+
+`convert_coordinates` is a package-level function (not a `RobotClient` method).
+
 ```python
+from fanuc_rmi import convert_coordinates
+
 urdf_path = "robot_models/crx10ial/crx10ial.urdf"
-cartesian = robot.read_cartesian_coordinates()
-joints = robot.convert_coordinates(cartesian, robot_model_urdf_path=urdf_path, from_type="cartesian", to_type="joint")
 
-cartesian_again = robot.convert_coordinates(joints, robot_model_urdf_path=urdf_path, from_type="joint", to_type="cartesian")
+joints = convert_coordinates(
+    {"X": 0.4, "Y": 0.1, "Z": 0.5, "W": 0.0, "P": 0.0, "R": 0.0},
+    robot_model_urdf_path=urdf_path,
+    from_type="cartesian",
+    to_type="joint",
+)
+
+cartesian = convert_coordinates(
+    joints,
+    robot_model_urdf_path=urdf_path,
+    from_type="joint",
+    to_type="cartesian",
+)
 ```
 
-**Output Files**
-- `robot_position_cartesian.txt`: created automatically when reading Cartesian poses
-- `robot_position_joint.txt`: created automatically when reading joint poses
+## Notes
 
-**Notes**
 - Requires Python 3.11+.
 - `convert_coordinates` requires `ikpy` (`pip install ikpy`).
-- Coordinate conversion always uses W/P/R. Provide W/P/R in your input dicts (missing values default to `0.0`).
-- Joint dicts must use ascending `J` keys (`J1`, `J2`, `J3`, ...). The function assumes that order matches the URDF joint order.
-- URDF units are often meters. If your robot reports millimeters, you may need to scale values before conversion.
-- If you cloned the repo, `main.py` is a runnable example.
-- For back-to-back moves, increment `sequence_id` to preserve ordering.
+- Coordinate conversion expects `W/P/R` in degrees; missing values default to `0.0`.
+- Joint dicts should be ascending (`J1`, `J2`, `J3`, ...), matching URDF joint order.
+- URDF units are often meters. Scale as needed if your robot reports millimeters.
+- `main.py` is a runnable example script.

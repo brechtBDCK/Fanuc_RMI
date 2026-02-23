@@ -18,7 +18,6 @@ from .pose_reader import (
     read_utool_data,
     write_utool_data,
 )
-from .kinematics import convert_coordinates
 
 
 class RobotClient:

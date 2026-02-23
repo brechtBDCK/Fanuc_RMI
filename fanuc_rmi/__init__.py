@@ -17,7 +17,6 @@ from .pose_reader import (
     read_utool_data,
     write_utool_data,
 )
-from .kinematics import convert_coordinates
 
 __all__ = [
     "RobotClient",
@@ -37,5 +36,4 @@ __all__ = [
     "write_uframe_data",
     "read_utool_data",
     "write_utool_data",
-    "convert_coordinates",
 ]

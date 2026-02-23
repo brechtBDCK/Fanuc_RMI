@@ -85,35 +85,7 @@ robot.write_utool_data(3, {"X": 10, "Y": 0, "Z": 120, "W": 0, "P": 0, "R": 0})
 - `UTOOL` selection is `1..9` on this setup.
 - No practical `UTOOL 0` is used in this project.
 
-## Coordinate Conversion (IKPy)
-
-`convert_coordinates` is a package-level function (not a `RobotClient` method).
-
-```python
-from fanuc_rmi import convert_coordinates
-
-urdf_path = "robot_models/crx10ial/crx10ial.urdf"
-
-joints = convert_coordinates(
-    {"X": 0.4, "Y": 0.1, "Z": 0.5, "W": 0.0, "P": 0.0, "R": 0.0},
-    robot_model_urdf_path=urdf_path,
-    from_type="cartesian",
-    to_type="joint",
-)
-
-cartesian = convert_coordinates(
-    joints,
-    robot_model_urdf_path=urdf_path,
-    from_type="joint",
-    to_type="cartesian",
-)
-```
-
 ## Notes
 
 - Requires Python 3.11+.
-- `convert_coordinates` requires `ikpy` (`pip install ikpy`).
-- Coordinate conversion expects `W/P/R` in degrees; missing values default to `0.0`.
-- Joint dicts should be ascending (`J1`, `J2`, `J3`, ...), matching URDF joint order.
-- URDF units are often meters. Scale as needed if your robot reports millimeters.
 - `main.py` is a runnable example script.

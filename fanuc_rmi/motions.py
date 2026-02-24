@@ -59,7 +59,7 @@ def linear_absolute(
             "Turn6": 0,
         },
         "Position": absolute_position,
-        "SpeedType": "mmSec", "Speed": speed, "TermType": "FINE"
+        "SpeedType": "mmSec", "Speed": speed, "TermType": "CNT", "TermValue": 100
     }
     response = send_command(client_socket, reader, data)
     print(response)

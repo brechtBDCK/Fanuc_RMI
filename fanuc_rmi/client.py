@@ -21,7 +21,7 @@ from .pose_reader import (
 
 
 class RobotClient:
-    def __init__(self, host: str = "192.168.1.22", startup_port: int = 16001, main_port: int = 16002, connect_timeout: float = 5.0, socket_timeout: float = 100.0, reader_timeout: float = 100.0, attempts: int = 5, retry_delay: float = 0.5, startup_pause: float = 0.25):
+    def __init__(self, host: str = "192.168.1.22", startup_port: int = 16001, main_port: int = 16002, connect_timeout: float = 5.0, socket_timeout: float = 60.0, reader_timeout: float = 60.0, attempts: int = 5, retry_delay: float = 0.5, startup_pause: float = 0.25):
         self.host = host
         self.startup_port = startup_port
         self.main_port = main_port
@@ -153,12 +153,12 @@ class RobotClient:
         print(response)
         return response
 
-    def read_cartesian_coordinates(self, output_path: str = "./robot_position_cartesian.txt"):
+    def read_cartesian_coordinates(self, output_path: str = "./robot_position_cartesian.jsonl"):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         return read_cartesian_coordinates(self.client_socket, self.reader, output_path=output_path)
 
-    def read_joint_coordinates(self, output_path: str = "./robot_position_joint.txt"):
+    def read_joint_coordinates(self, output_path: str = "./robot_position_joint.jsonl"):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         return read_joint_coordinates(self.client_socket, self.reader, output_path=output_path)

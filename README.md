@@ -62,9 +62,9 @@ robot.joint_absolute(absolute_joints, speed_percentage=40, sequence_id=4, uframe
 ## Read APIs
 
 ```python
-# current pose (also appends to local txt files)
-cartesian = robot.read_cartesian_coordinates()  # ./robot_position_cartesian.txt
-joints = robot.read_joint_coordinates()         # ./robot_position_joint.txt
+# current pose (also appends to local jsonl files)
+cartesian = robot.read_cartesian_coordinates()  # ./robot_position_cartesian.jsonl
+joints = robot.read_joint_coordinates()         # ./robot_position_joint.jsonl
 
 # active frame/tool selection on controller
 active = robot.get_uframe_utool()

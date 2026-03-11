@@ -7,7 +7,7 @@ def linear_relative(
     relative_displacement: dict,
     speed: float,
     sequence_id: int = 1,
-    uframe: int = 1,
+    uframe: int = 0,
     utool: int = 1,
 ):
     """Send a linear relative motion command."""
@@ -39,7 +39,7 @@ def linear_absolute(
     absolute_position: dict,
     speed: float,
     sequence_id: int = 1,
-    uframe: int = 1,
+    uframe: int = 0,
     utool: int = 1,
 ):
     """Send a linear absolute motion command."""
@@ -59,7 +59,7 @@ def linear_absolute(
             "Turn6": 0,
         },
         "Position": absolute_position,
-        "SpeedType": "mmSec", "Speed": speed, "TermType": "CNT", "TermValue": 100
+        "SpeedType": "mmSec", "Speed": speed, "TermType": "FINE", "TermValue": 100
     }
     response = send_command(client_socket, reader, data)
     print(response)
@@ -70,7 +70,7 @@ def joint_relative(
     relative_displacement: dict,
     speed_percentage: float,
     sequence_id: int = 1,
-    uframe: int = 1,
+    uframe: int = 0,
     utool: int = 1,
 ):
     """Send a joint relative motion command."""
@@ -101,7 +101,7 @@ def joint_absolute(
     absolute_position: dict,
     speed_percentage: float,
     sequence_id: int = 1,
-    uframe: int = 1,
+    uframe: int = 0,
     utool: int = 1,
 ):
     """Send a joint absolute motion command."""
@@ -132,3 +132,27 @@ def wait_time(client_socket, reader: SocketJsonReader, seconds: float, sequence_
     data = {"Instruction": "FRC_WaitTime", "SequenceID": sequence_id, "Time": seconds}
     response = send_command(client_socket, reader, data)
     print(response)
+
+
+def set_uframe(client_socket, reader: SocketJsonReader, frame_number: int, sequence_id: int = 1):
+    """Queue a TP instruction that sets the active UFRAME_NUM."""
+    data = {
+        "Instruction": "FRC_SetUFrame",
+        "SequenceID": int(sequence_id),
+        "FrameNumber": int(frame_number),
+    }
+    response = send_command(client_socket, reader, data)
+    print(response)
+    return response
+
+
+def set_utool(client_socket, reader: SocketJsonReader, tool_number: int, sequence_id: int = 1):
+    """Queue a TP instruction that sets the active UTOOL_NUM."""
+    data = {
+        "Instruction": "FRC_SetUTool",
+        "SequenceID": int(sequence_id),
+        "ToolNumber": int(tool_number),
+    }
+    response = send_command(client_socket, reader, data)
+    print(response)
+    return response

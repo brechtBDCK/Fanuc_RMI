@@ -8,11 +8,14 @@ from .motions import (
     joint_absolute,
     speed_override,
     wait_time,
+    set_uframe,
+    set_utool,
 )
 from .pose_reader import (
     read_cartesian_coordinates,
     read_joint_coordinates,
     get_uframe_utool,
+    set_uframe_utool,
     read_uframe_data,
     write_uframe_data,
     read_utool_data,
@@ -75,7 +78,6 @@ class RobotClient:
         commands = [
             {"Command": "FRC_Reset"},
             {"Command": "FRC_Initialize"},
-            {"Command": "FRC_SetUFrameUTool", "UFrameNumber": uframe, "UToolNumber": utool}
         ]
 
         for command in commands:
@@ -83,8 +85,9 @@ class RobotClient:
                 raise RuntimeError("Client socket or reader is not connected.")
             response = send_command(self.client_socket, self.reader, command)
             print(response)
+        self.set_uframe_utool(uframe=uframe, utool=utool)
 
-    def linear_relative(self, relative_displacement: dict, speed: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def linear_relative(self, relative_displacement: dict, speed: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         linear_relative(
@@ -97,7 +100,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def linear_absolute(self, absolute_position: dict, speed: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def linear_absolute(self, absolute_position: dict, speed: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         linear_absolute(
@@ -110,7 +113,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_relative(
@@ -123,7 +126,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_absolute(
@@ -146,6 +149,16 @@ class RobotClient:
             raise RuntimeError("Client socket or reader is not connected.")
         wait_time(self.client_socket, self.reader, seconds, sequence_id)
 
+    def set_uframe(self, frame_number: int, sequence_id: int = 1) -> dict:
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return set_uframe(self.client_socket, self.reader, frame_number, sequence_id)
+
+    def set_utool(self, tool_number: int, sequence_id: int = 1) -> dict:
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return set_utool(self.client_socket, self.reader, tool_number, sequence_id)
+
     def abort(self):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
@@ -167,6 +180,11 @@ class RobotClient:
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         return get_uframe_utool(self.client_socket, self.reader)
+
+    def set_uframe_utool(self, uframe: int, utool: int) -> dict:
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return set_uframe_utool(self.client_socket, self.reader, uframe, utool)
 
     def read_uframe_data(self, frame_number: int) -> dict:
         if self.client_socket is None or self.reader is None:

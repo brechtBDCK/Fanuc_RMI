@@ -72,6 +72,27 @@ def get_uframe_utool(client_socket, reader: SocketJsonReader) -> dict:
     return {"ErrorID": error_id, "UFrameNumber": uframe, "UToolNumber": utool}
 
 
+def set_uframe_utool(client_socket, reader: SocketJsonReader, uframe_number: int, utool_number: int) -> dict:
+    """Set the controller's currently active user frame/tool numbers."""
+    data = {
+        "Command": "FRC_SetUFrameUTool",
+        "UFrameNumber": int(uframe_number),
+        "UToolNumber": int(utool_number),
+    }
+    response = send_command(client_socket, reader, data)
+    print(response)
+
+    error_id = int(response.get("ErrorID", -1))
+    if error_id != 0:
+        return {"ErrorID": error_id, "UFrameNumber": None, "UToolNumber": None}
+
+    return {
+        "ErrorID": error_id,
+        "UFrameNumber": int(uframe_number),
+        "UToolNumber": int(utool_number),
+    }
+
+
 def read_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int) -> dict:
     """Read FANUC user frame data and return X/Y/Z/W/P/R."""
     data = {"Command": "FRC_ReadUFrameData", "FrameNumber": frame_number}

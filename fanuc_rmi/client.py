@@ -113,7 +113,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
+    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_relative(
@@ -126,7 +126,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 0, utool: int = 1):
+    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_absolute(

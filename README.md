@@ -121,8 +121,8 @@ robot.joint_absolute(
 Notes:
 
 - Motion defaults are `uframe=0`, `utool=1`.
-- `linear_*` and `joint_relative` include frame/tool inside `Configuration`.
-- `joint_absolute` uses joint-space payload (`JointAngle`) and does not include `Configuration`.
+- `linear_*` include frame/tool inside `Configuration`.
+- `joint_relative` and `joint_absolute` use joint-space payload (`JointAngle`) and do not include `Configuration`.
 
 ## Frame/Tool Selection
 

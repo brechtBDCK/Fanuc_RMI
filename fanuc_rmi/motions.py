@@ -70,26 +70,16 @@ def joint_relative(
     relative_displacement: dict,
     speed_percentage: float,
     sequence_id: int = 1,
-    uframe: int = 0,
+    uframe: int = 1,
     utool: int = 1,
 ):
     """Send a joint relative motion command."""
-    
+    _ = (uframe, utool)  # Joint-space command; frame/tool are accepted for API consistency.
+
     data = {
         "Instruction": "FRC_JointRelativeJRep",
         "SequenceID": sequence_id,
-        "Configuration": {
-            "UToolNumber": int(utool),
-            "UFrameNumber": int(uframe),
-            "Front": 1,
-            "Up": 1,
-            "Left": 0,
-            "Flip": 0,
-            "Turn4": 0,
-            "Turn5": 0,
-            "Turn6": 0,
-        },
-        "Position": relative_displacement,
+        "JointAngle": relative_displacement,
         "SpeedType": "Percent", "Speed": speed_percentage, "TermType": "FINE"
     }
     response = send_command(client_socket, reader, data)

@@ -1,5 +1,6 @@
 from .connection import SocketJsonReader, send_command
 
+from typing import Literal
 
 def linear_relative(
     client_socket,
@@ -9,6 +10,8 @@ def linear_relative(
     sequence_id: int = 1,
     uframe: int = 0,
     utool: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
 ):
     """Send a linear relative motion command."""
     
@@ -27,7 +30,10 @@ def linear_relative(
             "Turn6": 0,
         },
         "Position": relative_displacement,
-        "SpeedType": "mmSec", "Speed": speed, "TermType": "FINE"
+        "SpeedType": "mmSec",
+        "Speed": speed,
+        "TermType": term_type,
+        "TermValue": term_value
     }
     response = send_command(client_socket, reader, data)
     print(response)
@@ -41,6 +47,8 @@ def linear_absolute(
     sequence_id: int = 1,
     uframe: int = 0,
     utool: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
 ):
     """Send a linear absolute motion command."""
     
@@ -59,7 +67,10 @@ def linear_absolute(
             "Turn6": 0,
         },
         "Position": absolute_position,
-        "SpeedType": "mmSec", "Speed": speed, "TermType": "FINE", "TermValue": 100
+        "SpeedType": "mmSec",
+        "Speed": speed,
+        "TermType": term_type,
+        "TermValue": term_value
     }
     response = send_command(client_socket, reader, data)
     print(response)
@@ -72,6 +83,8 @@ def joint_relative(
     sequence_id: int = 1,
     uframe: int = 1,
     utool: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
 ):
     """Send a joint relative motion command."""
     _ = (uframe, utool)  # Joint-space command; frame/tool are accepted for API consistency.
@@ -80,7 +93,10 @@ def joint_relative(
         "Instruction": "FRC_JointRelativeJRep",
         "SequenceID": sequence_id,
         "JointAngle": relative_displacement,
-        "SpeedType": "Percent", "Speed": speed_percentage, "TermType": "FINE"
+        "SpeedType": "Percent",
+        "Speed": speed_percentage,
+        "TermType": term_type,
+        "TermValue": term_value
     }
     response = send_command(client_socket, reader, data)
     print(response)
@@ -93,15 +109,20 @@ def joint_absolute(
     sequence_id: int = 1,
     uframe: int = 0,
     utool: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
 ):
     """Send a joint absolute motion command."""
 
     _ = (uframe, utool)  # Joint-space command; frame/tool are accepted for API consistency.
     data = {
-            "Instruction": "FRC_JointMotionJRep",
-            "SequenceID": sequence_id,
-            "JointAngle": absolute_position,
-            "SpeedType": "Percent", "Speed": speed_percentage, "TermType": "FINE"
+        "Instruction": "FRC_JointMotionJRep",
+        "SequenceID": sequence_id,
+        "JointAngle": absolute_position,
+        "SpeedType": "Percent",
+        "Speed": speed_percentage,
+        "TermType": term_type,
+        "TermValue": term_value
         }
     
     response = send_command(client_socket, reader, data)

@@ -5,6 +5,7 @@ from .motions import (
     linear_absolute,
     joint_relative,
     joint_absolute,
+    joint_absolute_trajectory,
     speed_override,
     wait_time,
     set_uframe,
@@ -30,6 +31,7 @@ __all__ = [
     "linear_absolute",
     "joint_relative",
     "joint_absolute",
+    "joint_absolute_trajectory"
     "speed_override",
     "wait_time",
     "set_uframe",

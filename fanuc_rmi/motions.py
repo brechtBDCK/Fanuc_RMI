@@ -1,7 +1,10 @@
+from fanuc_rmi.connection import MAX_RMI_BUFFER
+
 from .connection import SocketJsonReader, send_command, read_packet
 
 from typing import Literal
 import numpy as np
+from collections import deque
 
 def linear_relative(
     client_socket,
@@ -14,7 +17,7 @@ def linear_relative(
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
 ):
-    """Send a linear relative motion command."""
+    """Send a linear relative motion command and return the response (blocking)."""
     
     data = {
         "Instruction": "FRC_LinearRelative",
@@ -52,7 +55,7 @@ def linear_absolute(
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
 ):
-    """Send a linear absolute motion command."""
+    """Send a linear absolute motion command and return the response (blocking)."""
     
     data = {
         "Instruction": "FRC_LinearMotion",
@@ -107,7 +110,7 @@ def joint_relative(
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
 ):
-    """Send a joint relative motion command."""
+    """Send a joint relative motion command and return the response (blocking)."""
 
     data = make_joint_relative_packet(
         relative_displacement,
@@ -151,7 +154,7 @@ def joint_absolute(
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
 ):
-    """Send a joint absolute motion command."""
+    """Send a joint absolute motion command and return the response (blocking)."""
 
     data = make_joint_absolute_packet(
         absolute_position,
@@ -164,6 +167,74 @@ def joint_absolute(
     send_command(client_socket, data)
     response = read_packet(reader)
     print(response)
+
+def joint_absolute_trajectory(
+    client_socket,
+    reader: SocketJsonReader,
+    qs: np.ndarray,
+    speed_percentage: float,
+    start_sequence_id: int = 1,
+    term_value: int = 100,
+):
+    """
+    Send joint motion commands to the robot and return the responses (non-blocking).
+
+    Parameters
+    ----------
+    client_socket: socket.socket
+        The socket to send the command to.
+    reader: SocketJsonReader
+        The reader to read the response from.
+    qs: np.ndarray of shape (n_points, n_joints)
+        The absolute joint coordinates to move to.
+    speed_percentage: float
+        The speed percentage to use for the motion.
+    start_sequence_id: int
+        The sequence ID to start the motion from.
+    term_value: int
+        The term value used for CNT termination.
+
+    Returns
+    -------
+    """
+    n = qs.shape[0]
+
+    outstanding = deque()
+    next_to_send = 0
+    responses = []
+
+    def send_one(i: int):
+        term_type: Literal["FINE", "CNT"] = "FINE" if i == n - 1 else "CNT"
+        packet = make_joint_absolute_packet(
+            absolute_position={f"J{j+1}": qs[next_to_send, j] for j in range(qs.shape[1])},
+            speed_percentage=speed_percentage,
+            sequence_id=start_sequence_id + next_to_send,
+            term_type=term_type,
+            term_value=term_value,
+        )
+        send_command(client_socket, packet)
+        outstanding.append(i + 1)
+
+    # Fill buffer with first few coordinates
+    initial_fill = min(MAX_RMI_BUFFER, n)
+    for _ in range(initial_fill):
+        send_one(next_to_send)
+        next_to_send += 1
+
+    # For each completed instruction, send a new one
+    while outstanding:
+        response = read_packet(reader)
+        responses.append(response)
+
+        returned_seq = response.get("SequenceID")
+        if returned_seq is not None:
+            outstanding.popleft()
+
+        if next_to_send < n:
+            send_one(next_to_send)
+            next_to_send += 1
+
+    return responses
 
 
 def speed_override(client_socket, reader: SocketJsonReader, value: int):

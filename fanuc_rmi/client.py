@@ -1,5 +1,6 @@
 import time
 from typing import Literal
+import numpy as np
 
 from .connection import SocketJsonReader, connect_with_retry, send_command, read_packet
 from .motions import (
@@ -7,6 +8,7 @@ from .motions import (
     linear_absolute,
     joint_relative,
     joint_absolute,
+    joint_absolute_trajectory,
     speed_override,
     wait_time,
     set_uframe,
@@ -139,6 +141,18 @@ class RobotClient:
             absolute_position,
             speed_percentage,
             sequence_id,
+        )
+
+    def joint_absolute_trajectory(self, qs: np.ndarray, speed_percentage: float, start_sequence_id: int = 1, term_value: int = 100):
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        joint_absolute_trajectory(
+            self.client_socket,
+            self.reader,
+            qs,
+            speed_percentage,
+            start_sequence_id,
+            term_value,
         )
 
     def speed_override(self, value: int):

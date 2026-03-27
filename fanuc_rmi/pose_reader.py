@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from .connection import SocketJsonReader, send_command
+from .connection import SocketJsonReader, send_command, read_packet
 
 FRAME_KEYS = ("X", "Y", "Z", "W", "P", "R")
 
@@ -20,7 +20,8 @@ def _normalize_frame_data(frame: dict, *, require_all_keys: bool) -> dict:
 def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_path: str = "./robot_position_cartesian.jsonl"):
     """Send a command to read the robot's Cartesian position and return full packet."""
     data = {"Command": "FRC_ReadCartesianPosition"}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
 
     print(response)
     read_error(client_socket, reader, response)
@@ -41,7 +42,8 @@ def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_p
 def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path: str = "./robot_position_joint.jsonl"):
     """Send a command to read the robot's joint angles and return full packet."""
     data = {"Command": "FRC_ReadJointAngles"}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -62,7 +64,8 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
 def get_uframe_utool(client_socket, reader: SocketJsonReader) -> dict:
     """Read the controller's currently active user frame/tool numbers."""
     data = {"Command": "FRC_GetUFrameUTool"}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -78,7 +81,8 @@ def set_uframe_utool(client_socket, reader: SocketJsonReader, uframe_number: int
         "UFrameNumber": int(uframe_number),
         "UToolNumber": int(utool_number),
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -88,7 +92,8 @@ def set_uframe_utool(client_socket, reader: SocketJsonReader, uframe_number: int
 def read_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int) -> dict:
     """Read FANUC user frame data and return X/Y/Z/W/P/R."""
     data = {"Command": "FRC_ReadUFrameData", "FrameNumber": frame_number}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -104,7 +109,8 @@ def write_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int
         "FrameNumber": frame_number,
         "Frame": frame_payload,
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -114,7 +120,8 @@ def write_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int
 def read_utool_data(client_socket, reader: SocketJsonReader, tool_number: int) -> dict:
     """Read FANUC user tool data and return X/Y/Z/W/P/R."""
     data = {"Command": "FRC_ReadUToolData", "ToolNumber": tool_number}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 
@@ -130,7 +137,8 @@ def write_utool_data(client_socket, reader: SocketJsonReader, tool_number: int, 
         "ToolNumber": tool_number,
         "Frame": frame_payload,
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
     return response

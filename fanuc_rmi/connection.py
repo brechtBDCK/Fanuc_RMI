@@ -3,6 +3,7 @@ import socket
 import time
 from typing import Optional
 
+MAX_RMI_BUFFER = 8
 
 class SocketJsonReader:
     """Accumulate bytes from the socket until a CRLF-terminated JSON message arrives."""
@@ -35,10 +36,14 @@ class SocketJsonReader:
         return -1
 
 
-def send_command(client_socket: socket.socket, reader: SocketJsonReader, data):
+def send_command(client_socket: socket.socket, data: dict):
     """Send a command to the robot and return the response."""
     json_data = json.dumps(data) + "\r\n"
     client_socket.sendall(json_data.encode("ascii"))
+
+
+def read_packet(reader: SocketJsonReader):
+    """Read a packet from the robot and return the response."""
     return reader.read_json()
 
 

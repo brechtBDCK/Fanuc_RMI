@@ -1,6 +1,7 @@
 import time
+from typing import Literal
 
-from .connection import SocketJsonReader, connect_with_retry, send_command
+from .connection import SocketJsonReader, connect_with_retry, send_command, read_packet
 from .motions import (
     linear_relative,
     linear_absolute,
@@ -55,7 +56,8 @@ class RobotClient:
         startup_reader = SocketJsonReader(startup_socket, timeout=self.reader_timeout)
         print(f"- connected to startup port {self.startup_port}")
 
-        response = send_command(startup_socket, startup_reader, {"Communication": "FRC_Connect"})
+        send_command(startup_socket, {"Communication": "FRC_Connect"})
+        response = read_packet(startup_reader)
         print(response)
 
         if "Port" in response:
@@ -86,7 +88,8 @@ class RobotClient:
         for command in commands:
             if self.client_socket is None or self.reader is None:
                 raise RuntimeError("Client socket or reader is not connected.")
-            response = send_command(self.client_socket, self.reader, command)
+            send_command(self.client_socket, command)
+            response = read_packet(self.reader)
             print(response)
         self.set_uframe_utool(uframe=uframe, utool=utool)
 
@@ -116,7 +119,7 @@ class RobotClient:
             utool=utool,
         )
 
-    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def joint_relative(self, relative_displacement: dict, speed_percentage: float, sequence_id: int = 1, term_type: Literal["FINE", "CNT"] = "FINE", term_value: int = 100):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_relative(
@@ -125,11 +128,9 @@ class RobotClient:
             relative_displacement,
             speed_percentage,
             sequence_id,
-            uframe=uframe,
-            utool=utool,
         )
 
-    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, uframe: int = 1, utool: int = 1):
+    def joint_absolute(self, absolute_position: dict, speed_percentage: float, sequence_id: int = 1, term_type: Literal["FINE", "CNT"] = "FINE", term_value: int = 100):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
         joint_absolute(
@@ -138,8 +139,6 @@ class RobotClient:
             absolute_position,
             speed_percentage,
             sequence_id,
-            uframe=uframe,
-            utool=utool,
         )
 
     def speed_override(self, value: int):
@@ -165,7 +164,8 @@ class RobotClient:
     def abort(self):
         if self.client_socket is None or self.reader is None:
             raise RuntimeError("Client socket or reader is not connected.")
-        response = send_command(self.client_socket, self.reader, {"Command": "FRC_Abort"})
+        send_command(self.client_socket, {"Command": "FRC_Abort"})
+        response = read_packet(self.reader)
         print(response)
         return response
 
@@ -230,7 +230,8 @@ class RobotClient:
 
     def close(self):
         if self.client_socket and self.reader:
-            response = send_command(self.client_socket, self.reader, {"Communication": "FRC_Disconnect"})
+            send_command(self.client_socket, {"Communication": "FRC_Disconnect"})
+            response = read_packet(self.reader)
             print(response)
 
             self.client_socket.close()

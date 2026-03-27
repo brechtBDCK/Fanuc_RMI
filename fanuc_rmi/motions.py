@@ -1,6 +1,7 @@
-from .connection import SocketJsonReader, send_command
+from .connection import SocketJsonReader, send_command, read_packet
 
 from typing import Literal
+import numpy as np
 
 def linear_relative(
     client_socket,
@@ -8,7 +9,7 @@ def linear_relative(
     relative_displacement: dict,
     speed: float,
     sequence_id: int = 1,
-    uframe: int = 0,
+    uframe: int = 1,
     utool: int = 1,
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
@@ -35,7 +36,8 @@ def linear_relative(
         "TermType": term_type,
         "TermValue": term_value
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     
     
@@ -45,7 +47,7 @@ def linear_absolute(
     absolute_position: dict,
     speed: float,
     sequence_id: int = 1,
-    uframe: int = 0,
+    uframe: int = 1,
     utool: int = 1,
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
@@ -72,24 +74,20 @@ def linear_absolute(
         "TermType": term_type,
         "TermValue": term_value
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
-    
-def joint_relative(
-    client_socket,
-    reader: SocketJsonReader,
+
+def make_joint_relative_packet(
     relative_displacement: dict,
     speed_percentage: float,
     sequence_id: int = 1,
-    uframe: int = 1,
-    utool: int = 1,
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
-):
-    """Send a joint relative motion command."""
-    _ = (uframe, utool)  # Joint-space command; frame/tool are accepted for API consistency.
+) -> dict:
+    """Create a joint relative motion command packet."""
 
-    data = {
+    return {
         "Instruction": "FRC_JointRelativeJRep",
         "SequenceID": sequence_id,
         "JointAngle": relative_displacement,
@@ -98,24 +96,42 @@ def joint_relative(
         "TermType": term_type,
         "TermValue": term_value
     }
-    response = send_command(client_socket, reader, data)
-    print(response)
 
-def joint_absolute(
+    
+def joint_relative(
     client_socket,
     reader: SocketJsonReader,
-    absolute_position: dict,
+    relative_displacement: dict,
     speed_percentage: float,
     sequence_id: int = 1,
-    uframe: int = 0,
-    utool: int = 1,
     term_type: Literal["FINE", "CNT"] = "FINE",
     term_value: int = 100,
 ):
-    """Send a joint absolute motion command."""
+    """Send a joint relative motion command."""
 
-    _ = (uframe, utool)  # Joint-space command; frame/tool are accepted for API consistency.
-    data = {
+    data = make_joint_relative_packet(
+        relative_displacement,
+        speed_percentage,
+        sequence_id,
+        term_type,
+        term_value,
+    )
+
+    send_command(client_socket, data)
+    response = read_packet(reader)
+    print(response)
+
+
+def make_joint_absolute_packet(
+    absolute_position: dict,
+    speed_percentage: float,
+    sequence_id: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
+) -> dict:
+    """Create a joint absolute motion command packet."""
+
+    return {
         "Instruction": "FRC_JointMotionJRep",
         "SequenceID": sequence_id,
         "JointAngle": absolute_position,
@@ -123,9 +139,30 @@ def joint_absolute(
         "Speed": speed_percentage,
         "TermType": term_type,
         "TermValue": term_value
-        }
+    }
+
+
+def joint_absolute(
+    client_socket,
+    reader: SocketJsonReader,
+    absolute_position: dict,
+    speed_percentage: float,
+    sequence_id: int = 1,
+    term_type: Literal["FINE", "CNT"] = "FINE",
+    term_value: int = 100,
+):
+    """Send a joint absolute motion command."""
+
+    data = make_joint_absolute_packet(
+        absolute_position,
+        speed_percentage,
+        sequence_id,
+        term_type,
+        term_value,
+    )
     
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
 
 
@@ -133,7 +170,8 @@ def speed_override(client_socket, reader: SocketJsonReader, value: int):
     """Set the speed override percentage."""
 
     data = {"Command": "FRC_SetOverRide", "Value": value}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
 
 
@@ -141,7 +179,8 @@ def wait_time(client_socket, reader: SocketJsonReader, seconds: float, sequence_
     """Wait for the specified number of seconds."""
 
     data = {"Instruction": "FRC_WaitTime", "SequenceID": sequence_id, "Time": seconds}
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
 
 
@@ -152,7 +191,8 @@ def set_uframe(client_socket, reader: SocketJsonReader, frame_number: int, seque
         "SequenceID": int(sequence_id),
         "FrameNumber": int(frame_number),
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     return response
 
@@ -164,6 +204,7 @@ def set_utool(client_socket, reader: SocketJsonReader, tool_number: int, sequenc
         "SequenceID": int(sequence_id),
         "ToolNumber": int(tool_number),
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     return response

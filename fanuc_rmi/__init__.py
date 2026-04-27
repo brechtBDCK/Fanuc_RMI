@@ -19,6 +19,9 @@ from .pose_reader import (
     write_uframe_data,
     read_utool_data,
     write_utool_data,
+    read_error,
+    read_din,
+    write_dout,
 )
 
 __all__ = [
@@ -42,4 +45,7 @@ __all__ = [
     "write_uframe_data",
     "read_utool_data",
     "write_utool_data",
+    "read_error",
+    "read_din",
+    "write_dout",
 ]

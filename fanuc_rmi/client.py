@@ -20,6 +20,9 @@ from .pose_reader import (
     write_uframe_data,
     read_utool_data,
     write_utool_data,
+    read_error,
+    read_din,
+    write_dout,
 )
 
 
@@ -206,6 +209,24 @@ class RobotClient:
             raise RuntimeError("Client socket or reader is not connected.")
         return write_utool_data(self.client_socket, self.reader, tool_number, frame)
 
+    def read_error(self, response_prev_command) -> dict:
+        if self.client_socket is None or self.reader is None or response_prev_command is None:
+            # Return an empty dict to satisfy the return type
+            return {}
+        result = read_error(self.client_socket, self.reader, response_prev_command)
+        if result is None:
+            return {}
+        return result
+
+    def read_din(self, port_number: int) -> dict:
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return read_din(self.client_socket, self.reader, port_number)
+
+    def write_dout(self, port_number: int, port_value: str | bool) -> dict:
+        if self.client_socket is None or self.reader is None:
+            raise RuntimeError("Client socket or reader is not connected.")
+        return write_dout(self.client_socket, self.reader, port_number, port_value)
 
     def close(self):
         if self.client_socket and self.reader:

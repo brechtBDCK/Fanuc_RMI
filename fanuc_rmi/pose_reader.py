@@ -23,6 +23,7 @@ def read_cartesian_coordinates(client_socket, reader: SocketJsonReader, output_p
     response = send_command(client_socket, reader, data)
 
     print(response)
+    read_error(client_socket, reader, response)
 
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -42,6 +43,7 @@ def read_joint_coordinates(client_socket, reader: SocketJsonReader, output_path:
     data = {"Command": "FRC_ReadJointAngles"}
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
 
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -62,14 +64,11 @@ def get_uframe_utool(client_socket, reader: SocketJsonReader) -> dict:
     data = {"Command": "FRC_GetUFrameUTool"}
     response = send_command(client_socket, reader, data)
     print(response)
-
-    error_id = int(response.get("ErrorID", -1))
-    if error_id != 0:
-        return {"ErrorID": error_id, "UFrameNumber": None, "UToolNumber": None}
+    read_error(client_socket, reader, response)
 
     uframe = response.get("UFrameNumber")
     utool = response.get("UToolNumber")
-    return {"ErrorID": error_id, "UFrameNumber": uframe, "UToolNumber": utool}
+    return {"UFrameNumber": uframe, "UToolNumber": utool}
 
 
 def set_uframe_utool(client_socket, reader: SocketJsonReader, uframe_number: int, utool_number: int) -> dict:
@@ -81,16 +80,9 @@ def set_uframe_utool(client_socket, reader: SocketJsonReader, uframe_number: int
     }
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
 
-    error_id = int(response.get("ErrorID", -1))
-    if error_id != 0:
-        return {"ErrorID": error_id, "UFrameNumber": None, "UToolNumber": None}
-
-    return {
-        "ErrorID": error_id,
-        "UFrameNumber": int(uframe_number),
-        "UToolNumber": int(utool_number),
-    }
+    return {"UFrameNumber": int(uframe_number),"UToolNumber": int(utool_number)}
 
 
 def read_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int) -> dict:
@@ -98,6 +90,7 @@ def read_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int)
     data = {"Command": "FRC_ReadUFrameData", "FrameNumber": frame_number}
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
 
     return _normalize_frame_data(response.get("Frame", {}), require_all_keys=False)
 
@@ -113,6 +106,8 @@ def write_uframe_data(client_socket, reader: SocketJsonReader, frame_number: int
     }
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
+
     return response
 
 
@@ -121,6 +116,7 @@ def read_utool_data(client_socket, reader: SocketJsonReader, tool_number: int) -
     data = {"Command": "FRC_ReadUToolData", "ToolNumber": tool_number}
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
 
     return _normalize_frame_data(response.get("Frame", {}), require_all_keys=False)
 
@@ -136,4 +132,51 @@ def write_utool_data(client_socket, reader: SocketJsonReader, tool_number: int, 
     }
     response = send_command(client_socket, reader, data)
     print(response)
+    read_error(client_socket, reader, response)
+    return response
+
+
+def read_error(client_socket, reader: SocketJsonReader, response_prev_command):
+    """Read the controller's most recent error packet."""
+    error_id = int(response_prev_command.get("ErrorID", -1))
+    if error_id == 0:
+        return None
+
+    data = {"Command": "FRC_ReadError"}
+    response_read_error = send_command(client_socket, reader, data)
+    print(response_read_error)
+    return response_read_error
+
+
+def read_din(client_socket, reader: SocketJsonReader, port_number: int) -> dict:
+    """Read a digital input port and return the controller response packet."""
+    data = {
+        "Command": "FRC_ReadDIN",
+        "PortNumber": int(port_number),
+    }
+    response = send_command(client_socket, reader, data)
+    print(response)
+    read_error(client_socket, reader, response)
+    return response
+
+
+def write_dout(client_socket, reader: SocketJsonReader, port_number: int, port_value: str | bool) -> dict:
+    """Write a digital output port. Port value must be ON/OFF or a bool."""
+    if isinstance(port_value, bool):
+        normalized_value = "ON" if port_value else "OFF"
+    else:
+        normalized_value = str(port_value).strip().upper()
+
+    if normalized_value not in {"ON", "OFF"}:
+        raise ValueError("Port value must be 'ON', 'OFF', True, or False")
+
+    data = {
+        "Command": "FRC_WriteDOUT",
+        "PortNumber": int(port_number),
+        "PortValue": normalized_value,
+    }
+    response = send_command(client_socket, reader, data)
+    print(response)
+    read_error(client_socket, reader, response)
+
     return response

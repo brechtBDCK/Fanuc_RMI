@@ -174,9 +174,19 @@ utool_1 = robot.read_utool_data(1)
 
 robot.write_uframe_data(2, {"X": 0, "Y": 0, "Z": 0, "W": 0, "P": 0, "R": 0})
 robot.write_utool_data(3, {"X": 10, "Y": 0, "Z": 120, "W": 0, "P": 0, "R": 0})
+
+# digital I/O
+din_packet = robot.read_din(1)
+robot.write_dout(1, "ON")   # also accepts True
+robot.write_dout(1, "OFF")  # also accepts False
+
+# latest controller error packet
+error_packet = robot.read_error()
 ```
 
 `write_uframe_data(...)` and `write_utool_data(...)` require all keys: `X`, `Y`, `Z`, `W`, `P`, `R`.
+`write_dout(...)` requires `ON`/`OFF` or a bool.
+`read_din(...)` adds `ControllerError` to the returned packet when the DIN response has nonzero `ErrorID`.
 
 ## Numbering Notes
 

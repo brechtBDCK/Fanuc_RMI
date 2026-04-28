@@ -175,7 +175,7 @@ def joint_absolute_trajectory(
     speed_percentage: float,
     start_sequence_id: int = 1,
     term_value: int = 100,
-):
+) -> list[dict]:
     """
     Send joint motion commands to the robot and return the responses (non-blocking).
 
@@ -196,6 +196,8 @@ def joint_absolute_trajectory(
 
     Returns
     -------
+    list[dict]
+        The list of responses from the robot.
     """
     n = qs.shape[0]
 

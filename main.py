@@ -20,10 +20,10 @@ robot.speed_override(20)
 
 # robot.joint_absolute({"J1": 0, "J2": 0, "J3": 0, "J4": 0, "J5": 0, "J6": 0}, speed_percentage=40, sequence_id=1, uframe=1, utool=1)
 
-robot.read_din(81)  # Read digital input 1
-robot.write_dout(1, "ON")  # Set digital output RO-1 to True
-robot.wait_time(5,sequence_id=1)
-robot.write_dout(1, "OFF")  # Remember to put register to OFF after operation 
-robot.wait_time(2,sequence_id=2)
+# robot.read_din(81)  # Read digital input 1
+# robot.write_dout(1, "ON")  # Set digital output RO-1 to True
+# robot.wait_time(5,sequence_id=1)
+# robot.write_dout(1, "OFF")  # Remember to put register to OFF after operation 
+# robot.wait_time(2,sequence_id=2)
 
 robot.close()

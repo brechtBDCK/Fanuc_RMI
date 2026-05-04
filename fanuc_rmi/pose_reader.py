@@ -151,7 +151,8 @@ def read_error(client_socket, reader: SocketJsonReader, response_prev_command):
         return None
 
     data = {"Command": "FRC_ReadError"}
-    response_read_error = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response_read_error = read_packet(reader)
     print(response_read_error)
     return response_read_error
 
@@ -162,7 +163,8 @@ def read_din(client_socket, reader: SocketJsonReader, port_number: int) -> dict:
         "Command": "FRC_ReadDIN",
         "PortNumber": int(port_number),
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
     return response
@@ -183,7 +185,8 @@ def write_dout(client_socket, reader: SocketJsonReader, port_number: int, port_v
         "PortNumber": int(port_number),
         "PortValue": normalized_value,
     }
-    response = send_command(client_socket, reader, data)
+    send_command(client_socket, data)
+    response = read_packet(reader)
     print(response)
     read_error(client_socket, reader, response)
 

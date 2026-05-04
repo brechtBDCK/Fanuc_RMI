@@ -58,12 +58,14 @@ Constructor parameters:
 Motion calls enqueue FANUC RMI instructions unless noted otherwise. Use increasing
 `sequence_id` values when mixing moves, waits, and frame/tool changes.
 
-| Function | RMI instruction | Payload | Speed |
-| --- | --- | --- | --- |
-| `linear_relative(relative_displacement, speed, sequence_id=1, uframe=0, utool=1)` | `FRC_LinearRelative` | Relative pose with `X`, `Y`, `Z`, `W`, `P`, `R` | `mmSec` |
-| `linear_absolute(absolute_position, speed, sequence_id=1, uframe=0, utool=1)` | `FRC_LinearMotion` | Absolute pose with `X`, `Y`, `Z`, `W`, `P`, `R` | `mmSec` |
+| Function                                                                                    | RMI instruction | Payload                                          | Speed     |
+|---------------------------------------------------------------------------------------------| --- |--------------------------------------------------|-----------|
+| `linear_relative(relative_displacement, speed, sequence_id=1, uframe=0, utool=1)`           | `FRC_LinearRelative` | Relative pose with `X`, `Y`, `Z`, `W`, `P`, `R`  | `mmSec`   |
+| `linear_absolute(absolute_position, speed, sequence_id=1, uframe=0, utool=1)`               | `FRC_LinearMotion` | Absolute pose with `X`, `Y`, `Z`, `W`, `P`, `R`  | `mmSec`   |
 | `joint_relative(relative_displacement, speed_percentage, sequence_id=1, uframe=1, utool=1)` | `FRC_JointRelativeJRep` | Relative joints with `J1` through `J9` as needed | `Percent` |
-| `joint_absolute(absolute_position, speed_percentage, sequence_id=1, uframe=1, utool=1)` | `FRC_JointMotionJRep` | Absolute joints with `J1` through `J9` as needed | `Percent` |
+| `joint_absolute(absolute_position, speed_percentage, sequence_id=1, uframe=1, utool=1)`     | `FRC_JointMotionJRep` | Absolute joints with `J1` through `J9` as needed | `Percent` |
+| `joint_absolute_trajectory(qs, speed_percentage, start_sequence_id=1, term_value=100)`      | `FRC_JointMotionJRep` | Absolute joints over points of the trajectory    | `Percent` |
+
 
 | Function | RMI instruction | Behavior |
 | --- | --- | --- |
@@ -132,6 +134,17 @@ robot.joint_absolute(
     speed_percentage=20,
     sequence_id=5,
 )
+
+# Joint trajectory (deg)
+qs = np.array([[0, 0, 0, 0, 0, 0],
+               [10, 0, 0, 0, 0, 0], 
+               [20, 0, 10, 0, 0, 0]])
+robot.joint_absolute_trajectory(
+    qs,
+    speed_percentage=20,
+    start_sequence_id=6,
+    term_value=100,
+)
 ```
 
 Motion notes:
@@ -140,6 +153,7 @@ Motion notes:
 - `joint_*` commands use joint-space payloads (`JointAngle`) and ignore frame/tool arguments. Those arguments exist only for API consistency.
 - Default linear frame/tool is `uframe=0`, `utool=1`.
 - Default `RobotClient` joint frame/tool arguments are `uframe=1`, `utool=1`, but they are ignored by the payload.
+- `joint_absolute_trajectory` sends a series of `FRC_JointMotionJRep` instructions with `SequenceID` values starting at `start_sequence_id` and incrementing by 1 for each point. It sends a `term_type` of `CNT` for every point, except for the last point in the trajectory. The last point's `term_type` is `FINE`.
 
 ## Example code: Frame/Tool Selection
 
